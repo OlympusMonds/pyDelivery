@@ -2,37 +2,30 @@
 Listener object
 
 """
-from __future__ import print_function, unicode_literals
-from zeroconf import ServiceBrowser, Zeroconf, raw_input
-import socket
+from __future__ import print_function
+from Communicator import Communicator
 
 class Listener():
 
 	def __init__(self):
-		self.servers = {}
+		self.communicators = {}
 
 	def add_service(self, zeroconf, type, name):
 		info = zeroconf.get_service_info(type, name)
-		self.servers[name] = info
+		self.communicators[name] = Communicator(name, info)
 		print("Service {} added".format(name))
-		print("Type is {}".format(type))
-		if info:
-			print("  Address is {}:{}".format(socket.inet_ntoa(info.address),
-							  info.port))
-			print("  Weight is {}, Priority is {}".format(info.weight,
-								      info.priority))
-			print("  Server is {}".format(info.server))
-
-			if info.properties:
-				print("  Properties are")
-				for key, value in info.properties.items():
-					print("    {}: {}".format(key, value))
-		else:
-			print("  No info")
-		print("\n")
 
 	def remove_service(self, zeroconf, type, name):
+		self.communicators[name].kill()
 		print("Service {} is removed".format(name))
 
-	def number_of_servers(self):
-		return len(self.servers.keys())
+	@property
+	def communicators(self):
+		return self.communicators
+
+	@property
+	def alive_communicators(self):
+		return {key: val for key, val in self.communicators.iteritems() if val.alive}
+
+	def __len__(self):
+		return len(self.communicators.keys())
