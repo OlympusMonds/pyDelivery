@@ -1,15 +1,16 @@
 # pyDelivery
-Apple AirDrop, reimagined in Python
+Apple AirDrop, reimagined in Python.
 
-Plan:
- - Get a server and client to see each other with ZeroConf
- - Explore how to send a file between them, once they can see each other
- - Explore potential local wifi setup, ala AirDrop on OSX
+This is what AirDrop is: http://support.apple.com/en-au/HT203106
 
-More detailed plan:
- - 
+It is very useful, except it is limited to OSX and other Apple stuff. My goal is to implement a similar system in Python, so we can all use it!
+
+The current plan is this:
+ - Use zeroconf to allow two machines running PyDelivery to see each other, and setup a transfer.
+ - Use TKinter to show this in a visually appealing way (tk may not be built for looking good...)
+ - Investigate setting up a new WiFi network with Python
+    - This may be impossible.
 
 Dependencies:
  - zeroconf: pip install zeroconf
  - six     : pip install six
- - 
