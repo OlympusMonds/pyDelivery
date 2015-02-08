@@ -10,13 +10,17 @@ import sys
 import time
 
 from Tkinter import *
-from zeroconf import ServiceBrowser, Zeroconf, raw_input
-
+from zeroconf import ServiceBrowser, Zeroconf 
 from Listener import Listener
 from Server import Server
 from FileSender import FileSender
 from FileReceiver import FileReceiver
 from gui import MainGUI
+
+from communication import DataReceiver, DataServer
+import threading
+import socket
+
 
 def main():
 	"""
@@ -24,16 +28,38 @@ def main():
 	"""
 	check_for_people_interval = 2000
 
-	zeroconf = Zeroconf()
+	zconf = Zeroconf()
+	try:
+		# Bit of a hack to get local IP - see http://stackoverflow.com/a/166589/1728112
+		s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+		s.connect(("8.8.8.8",80)) # Try connect to google DNS
+		localip = (s.getsockname()[0])
+		s.close()
+	except:
+		sys.exit("Unable to determine your local IP address.")
+	
+	# Step X - bind a port to listen on
+	address = (localip,  0) # Let the OS choose a port
+	dataserver = DataServer(address, DataReceiver)
+	ip, port = dataserver.server_address
 
-	# Step 1 - annouce yourself on the network:
+	print(ip, port)
+
+	dataserver_thread = threading.Thread(target=dataserver.serve_forever)
+	dataserver_thread.daemon = True
+	dataserver_thread.start()
+
+	# Step X - annouce yourself on the network:
+	hostname = socket.gethostname()
 	properties = {"Nice name" : "Luke's VM"}
-	annoucer = Server(zeroconf, "_http._tcp.", "Luke's VM",
-			  "192.168.1.11", 8888, properties = properties)
+	annoucer = Server(zconf, "_http._tcp.", hostname,
+			  localip, port, properties = properties)
 
-	# Step 2 - listen for anyone else annoucing:
+	# Step X - listen for anyone else annoucing:
 	listen = Listener()
-	browser = ServiceBrowser(zeroconf, "_http._tcp.", listen)
+	browser = ServiceBrowser(zconf, "_http._tcp.", listen)
+	
+
 
 	# Step 3 - start up the GUI, and monitor the situation
 	root=Tk()
@@ -48,12 +74,6 @@ def main():
 
 	root.after(check_for_people_interval, task)
 	root.mainloop()
-	"""	
-	try:
-		raw_input("Press enter to exit")
-	finally:
-		zeroconf.close()
-	"""
 
 if __name__ == "__main__":
 	sys.exit(main())
