@@ -43,8 +43,6 @@ def main():
 	dataserver = DataServer(address, DataReceiver)
 	ip, port = dataserver.server_address
 
-	print(ip, port)
-
 	dataserver_thread = threading.Thread(target=dataserver.serve_forever)
 	dataserver_thread.daemon = True
 	dataserver_thread.start()
@@ -58,10 +56,31 @@ def main():
 	# Step X - listen for anyone else annoucing:
 	listen = Listener()
 	browser = ServiceBrowser(zconf, "_http._tcp.", listen)
-	
 
+	file_to_send = "test_file.zip"
+
+
+	time.sleep(5)
+	print("Communicators!")
+	for name, comm in listen.communicators.iteritems():
+		if hostname not in name: # Not localhost
+			print("Trying to send file")
+			sock = socket.socket()
+			sock.connect((comm.address, comm.port))
+			try:
+				sock.sendall("receive file:{}".format(file_to_send))
+				response = sock.recv(1024)
+				if "OK" in response:
+					fs = FileSender("test_file.zip", comm.address, comm.port) 
+					fs.send()
+				else:
+					print("Not OK to send")
+			finally:
+				sock.close()
+	print("Done")
 
 	# Step 3 - start up the GUI, and monitor the situation
+	"""
 	root=Tk()
 	root.geometry("250x250+300+300")
 	maingui = MainGUI(root)
@@ -74,6 +93,7 @@ def main():
 
 	root.after(check_for_people_interval, task)
 	root.mainloop()
+	"""
 
 if __name__ == "__main__":
 	sys.exit(main())
