@@ -85,16 +85,7 @@ def main():
 					print("Response from {}: {}".format(comm.address, response))
 					if "OK" in response:
 						print("got an OK")
-						
-						blocksize = os.path.getsize("test_file.zip")
-						offset = 0
-						with open("test_file.zip", 'r') as fb:
-							while True:
-								sent = sendfile(sock.fileno(), fb.fileno(), offset, blocksize)
-								if sent == 0:
-									break #EOF
-								offset += sent
-
+						fs = FileSender("test_file.zip", sock)
 					else:
 						print("Not OK to send")
 				finally:
@@ -118,8 +109,3 @@ def main():
 if __name__ == "__main__":
 	sys.exit(main())
 
-
-	#fr = FileReceiver("received_test_file.zip", "127.0.0.1", 8889)
-	#fr.receive()
-	#fs = FileSender("test_file.zip", "127.0.0.1", 8889)
-	#fs.send()

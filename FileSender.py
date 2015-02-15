@@ -3,23 +3,22 @@ from sendfile import sendfile
 
 class FileSender():
 
-	def __init__(self, filename, destination, port):
+	def __init__(self, filename, opensock):
 		self.filename = filename
-		self.destination = destination
-		self.port = port
+		self.opensock = opensock
 
+		# Init and send!
+		self.send()
+
+		# This is a weird class..
 
 	def send(self):
-		print("sending")
-		print(self.destination, self.port)
+		print("sending {}".format(self.filename))
 		blocksize = os.path.getsize(self.filename)
 		offset = 0
 		with open(self.filename, 'r') as fb:
-			sock = socket.socket()
-			sock.connect((self.destination, self.port))
-
 			while True:
-				sent = sendfile(sock.fileno(), fb.fileno(), offset, blocksize)
+				sent = sendfile(self.opensock.fileno(), fb.fileno(), offset, blocksize)
 				if sent == 0:
 					break #EOF
 				offset += sent
