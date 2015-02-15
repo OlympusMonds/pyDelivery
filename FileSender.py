@@ -10,6 +10,8 @@ class FileSender():
 
 
 	def send(self):
+		print("sending")
+		print(self.destination, self.port)
 		blocksize = os.path.getsize(self.filename)
 		offset = 0
 		with open(self.filename, 'r') as fb:
@@ -21,6 +23,7 @@ class FileSender():
 				if sent == 0:
 					break #EOF
 				offset += sent
+		print("sent!")
 		return True
 
 

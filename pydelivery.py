@@ -6,7 +6,7 @@ Re-imagining OSX AirDrop with Python
 Author: Luke Mondy
 """
 from __future__ import print_function
-import sys
+import sys, os
 import time
 
 from Tkinter import *
@@ -22,6 +22,7 @@ from communication import DataReceiver, DataServer
 import threading
 import socket
 import argparse
+from sendfile import sendfile
 
 def main():
 	"""
@@ -81,11 +82,19 @@ def main():
 				try:
 					sock.sendall("receive file:{}".format(file_to_send))
 					response = sock.recv(1024)
-					print(response)
+					print("Response from {}: {}".format(comm.address, response))
 					if "OK" in response:
 						print("got an OK")
-						fs = FileSender("test_file.zip", comm.address, comm.port+1) 
-						fs.send()
+						
+						blocksize = os.path.getsize("test_file.zip")
+						offset = 0
+						with open("test_file.zip", 'r') as fb:
+							while True:
+								sent = sendfile(sock.fileno(), fb.fileno(), offset, blocksize)
+								if sent == 0:
+									break #EOF
+								offset += sent
+
 					else:
 						print("Not OK to send")
 				finally:
