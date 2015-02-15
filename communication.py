@@ -1,7 +1,6 @@
 from __future__ import print_function
 import threading
 import SocketServer
-from FileReceiver import FileReceiver
 
 
 class DataReceiver(SocketServer.BaseRequestHandler):

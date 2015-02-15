@@ -43,7 +43,7 @@ def main():
 	try:
 		# Bit of a hack to get local IP - see http://stackoverflow.com/a/166589/1728112
 		s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-		s.connect(("8.8.8.8",80)) # Try connect to google DNS
+		s.connect(("129.1.1.1",80)) # The address can be garbage - it just has to NOT be local 
 		localip = (s.getsockname()[0])
 		s.close()
 	except Exception as e:
