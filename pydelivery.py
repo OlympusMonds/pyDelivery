@@ -15,7 +15,6 @@ from zeroconf import ServiceBrowser, Zeroconf
 from zc_annoucers import ZConfAnnoucer, ZConfListener
 
 from FileSender import FileSender
-from FileReceiver import FileReceiver
 from gui import MainGUI
 
 from communication import DataReceiver, DataServer
