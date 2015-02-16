@@ -54,9 +54,6 @@ def main():
 	dataserver = DataServer(address, DataReceiver)
 	ip, port = dataserver.server_address
 
-	dataserver_thread = threading.Thread(target=dataserver.serve_forever)
-	dataserver_thread.daemon = True
-	dataserver_thread.start()
 
 	# Step X - annouce yourself on the network:
 	hostname = socket.gethostname()
@@ -68,7 +65,13 @@ def main():
 	zclistener = ZConfListener()
 	zcbrowser = ServiceBrowser(zconf, "_http._tcp.", zclistener)
 
-	file_to_send = "test_file.zip"
+	dataserver.set_peers(zclistener.peers)
+
+	dataserver_thread = threading.Thread(target=dataserver.serve_forever)
+	dataserver_thread.daemon = True
+	dataserver_thread.start()
+    
+        file_to_send = "test_file.zip"
 
 	if args.test_as_sender:
 		time.sleep(5)
@@ -76,9 +79,9 @@ def main():
 		for name, comm in zclistener.peers.iteritems():
 			if hostname not in name: # Not localhost
 				print("Trying to send file to {}:{}".format(comm.address, comm.port))
-				sock = socket.socket()
-				sock.connect((comm.address, comm.port))
 				try:
+					sock = socket.socket()
+					sock.connect((comm.address, comm.port))
 					sock.sendall("receive file:{}".format(file_to_send))
 					response = sock.recv(1024)
 					print("Response from {}: {}".format(comm.address, response))
