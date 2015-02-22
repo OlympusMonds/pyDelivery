@@ -9,8 +9,6 @@ from __future__ import print_function
 import sys, os
 import time
 
-from Tkinter import *
-
 from zeroconf import ServiceBrowser, Zeroconf 
 from zc_annoucers import ZConfAnnoucer, ZConfListener
 
@@ -96,6 +94,7 @@ def main():
     else:
         # Step 3 - start up the GUI, and monitor the situation
         maingui = PyDelApp()
+        maingui.set_peers(zclistener.peers)
         maingui.run()
 
 
