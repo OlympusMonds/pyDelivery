@@ -1,0 +1,48 @@
+#:kivy 1.0.9
+
+<Peer@Ellipse>:
+    source: None
+
+    Ellipse:
+        source: root.source
+        pos: root.pos
+        size: 1, 1
+
+
+<PyDelMainScreen>:
+    fl: floatLay
+
+    canvas.before:
+        #BorderImage:
+        #    border: 10, 10, 10, 10
+        #    source: 'images/background.png'
+        #    pos: self.pos
+        #    size: self.size
+        Color:
+            rgba: 1, 1, 1, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    
+    canvas:
+        Ellipse:
+            size: root.image_radius * 2, root.image_radius * 2
+            pos: root.center_x - root.image_radius, root.height * 1 / 10
+            source: 'images/mond.png' 
+        
+        Color:
+            rgba: 0, 0, 0, root.rad_opac 
+        Line:
+            circle: root.center_x, root.height * 1 / 10 + root.image_radius, root.rad
+            width: 5
+
+    FloatLayout:
+        id: floatLay
+        size: root.size
+        pos: root.pos
+
+        canvas:
+            Color:
+                # No colour
+            
+            
