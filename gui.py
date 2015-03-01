@@ -6,12 +6,23 @@ from kivy.app import App
 from kivy.uix.widget import Widget
 from kivy.uix.behaviors import ButtonBehavior
 from kivy.uix.floatlayout import FloatLayout
-from kivy.properties import ObjectProperty, NumericProperty
+from kivy.properties import ObjectProperty, NumericProperty, StringProperty
 from kivy.graphics import Line, Ellipse, Color
 from kivy.clock import Clock
 from kivy.animation import Animation
 from kivy.factory import Factory
 
+
+class Peer(FloatLayout):
+    animation = None
+    name = StringProperty("Peer")
+    image_radius = NumericProperty(50)
+
+    def __init__(self, image_radius, **kwargs):
+        super(Peer, self).__init__(**kwargs)
+        self.image_radius = image_radius
+
+    
 
 class PyDelMainScreen(Widget):
     
@@ -21,18 +32,17 @@ class PyDelMainScreen(Widget):
 
     disp_count = 0
 
-    peers = defaultdict(dict)
+    peers = {}
     outside_peers = None
   
 
     def __init__(self, **kwargs):
         super(PyDelMainScreen, self).__init__(**kwargs)
-        # Just in case
 
 
     def update_radar(self, dt):
         max_rad = max(self.width / 2.0,  (self.height - (self.height / 10.0)))
-        self.rad += 1
+        self.rad += 2
         self.rad_opac = 1.0 - (self.rad / max_rad)
         
         if self.rad > max_rad:
@@ -51,9 +61,12 @@ class PyDelMainScreen(Widget):
         for delta_peer in diff_peers:
             if delta_peer in self.outside_peers.keys():
                 with self.fl.canvas:
-                    self.peers[delta_peer]["peer_obj"] = Factory.Peer()  # Add a new peer
+                    newpeer = Peer(image_radius=self.image_radius)
+                    newpeer.name = delta_peer
+                    self.peers[delta_peer] = newpeer  # Add a new peer
 
             elif delta_peer in self.peers.keys():
+                self.fl.canvas.clear()
                 del self.peers[delta_peer]  # Peer no longer exists
 
         self.peer_layout()  # Set peer locations
@@ -61,7 +74,20 @@ class PyDelMainScreen(Widget):
 
     def peer_layout(self):
         num_peers = len(self.outside_peers.keys())
-        
+       
+        def close_enough(posA, posB, percent_threshold=0.02):
+            """
+            Tell whether two positions are "close enough" to each other.
+            It goes through each coordinate, and Falsafies the statement
+            if one is too far away.
+            """
+            close = True
+            for coordA, coordB in zip(posA, posB):
+                if not coordA * (1 - percent_threshold) < coordB < coordA * (1 + percent_threshold):
+                    close = False
+            return close
+
+
         if num_peers > 0:
             radar_rad = min(self.width, self.height) / 2.0
             radar_rad -= 50  # border buffer
@@ -70,7 +96,7 @@ class PyDelMainScreen(Widget):
             count = 0
             for name in self.peers.keys():
                 count += 1
-                peer = self.peers[name]["peer_obj"]
+                peer = self.peers[name]
 
                 xpos = radar_rad * cos(radians(semi_circ_segment * count))
                 ypos = radar_rad * sin(radians(semi_circ_segment * count))
@@ -82,16 +108,18 @@ class PyDelMainScreen(Widget):
                 peer.size = (self.image_radius * 2, self.image_radius * 2)
                 
                 need_animation = False
-                if pos != peer.pos:
-                    if "ani_obj" not in self.peers[name].keys():
-                        need_animation = True
-                        # This if should protect against Key_Error exception
-                    elif not self.peers[name]["ani_obj"].have_properties_to_animate(peer):
+                if not close_enough(pos, peer.pos):
+                    if peer.animation:
+                        if not peer.animation.have_properties_to_animate(peer):
+                            # Extra if statement to avoid None object error
+                            need_animation = True
+                    else:
                         need_animation = True
 
                     if need_animation:
-                        self.peers[name]["ani_obj"] = Animation(pos = pos, duration = 0.5, t='in_out_circ')
-                        self.peers[name]["ani_obj"].start(peer)
+                        peer.animation = Animation(pos = pos, duration = 0.5, t='in_out_circ')
+                        peer.animation.start(peer)
+
 
     def set_peers(self, peers):
         self.outside_peers = peers

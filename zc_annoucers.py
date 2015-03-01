@@ -23,14 +23,17 @@ class ZConfAnnoucer():
 
 class ZConfListener():
 
-    def __init__(self):
+    def __init__(self, localip):
 	self.peers = {}
+	self.localip = localip
 
 
     def add_service(self, zconf, type, name):
 	info = zconf.get_service_info(type, name)
-	self.peers[name] = Peer(name, info)
-	print("Service {} added".format(name))
+	if socket.inet_ntoa(info.address) != self.localip:
+	    # Don't add yourself to the list of peers
+	    self.peers[name] = Peer(name, info)
+	    print("Service {} added".format(name))
 
 
     def remove_service(self, zconf, type, name):

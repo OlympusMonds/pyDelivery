@@ -60,7 +60,7 @@ def main():
                              localip, port, properties = properties)
 
     # Step X - listen for anyone else annoucing:
-    zclistener = ZConfListener()
+    zclistener = ZConfListener(ip)
     zcbrowser = ServiceBrowser(zconf, "_http._tcp.", zclistener)
 
     dataserver.set_peers(zclistener.peers)
