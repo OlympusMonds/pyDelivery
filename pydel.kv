@@ -4,6 +4,9 @@
     source: None
 
     canvas:
+        Color:
+        
+
         Ellipse:
             source: root.source
             pos: root.pos
@@ -39,10 +42,10 @@
             source: 'images/mond.png' 
         
         Color:
-            rgba: 0, 0, 0, root.rad_opac 
+            rgba: 0, 0, 0, root.radar_opacity
         Line:
-            circle: root.center_x, root.height * 1 / 10 + root.image_radius, root.rad
-            width: 5
+            circle: root.center_x, root.height * 1 / 10 + root.image_radius, root.radar_radius
+            width: root.radar_line_width
 
     FloatLayout:
         id: floatLay

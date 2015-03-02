@@ -22,13 +22,18 @@ class Peer(FloatLayout):
         super(Peer, self).__init__(**kwargs)
         self.image_radius = image_radius
 
-    
+    def on_touch_down(self, touch):
+        print(touch)
 
 class PyDelMainScreen(Widget):
     
     image_radius = NumericProperty(50)
-    rad = NumericProperty(50)
-    rad_opac = NumericProperty(1.0)
+    radar_radius = NumericProperty(50)
+    radar_opacity = NumericProperty(1.0)
+
+    radar_max_line_width = 10
+    radar_min_line_width = 2
+    radar_line_width = NumericProperty(radar_min_line_width)
 
     disp_count = 0
 
@@ -42,14 +47,22 @@ class PyDelMainScreen(Widget):
 
     def update_radar(self, dt):
         max_rad = max(self.width / 2.0,  (self.height - (self.height / 10.0)))
-        self.rad += 2
-        self.rad_opac = 1.0 - (self.rad / max_rad)
+        percent_complete = self.radar_radius / max_rad
+
+        self.radar_radius += 2
+        self.radar_opacity = 1.0 - percent_complete
+        self.radar_line_width = (self.radar_max_line_width - self.radar_min_line_width) * percent_complete
+        self.radar_line_width += self.radar_min_line_width
         
-        if self.rad > max_rad:
-            self.rad = self.image_radius
+        if self.radar_radius > max_rad:
+            self.radar_radius = self.image_radius
 
 
     def update_peers(self, dt):
+        """
+        Check to see if new peers have been found, and remove any
+        who are no longer around.
+        """
         self.disp_count += 1
 
         def diff(list1, list2):
@@ -73,7 +86,13 @@ class PyDelMainScreen(Widget):
                 
 
     def peer_layout(self):
-        num_peers = len(self.outside_peers.keys())
+        """
+        The actual layout of peers is done in here. This function is called by
+        update_peers, and should only ever expect to have to display the peers
+        in the self.peer dict (that means it shouldn't need to deal with deletions,
+        and there should never be extra peers that don't need to be shown)
+        """
+        num_peers = len(self.peers.keys())
        
         def close_enough(posA, posB, percent_threshold=0.02):
             """

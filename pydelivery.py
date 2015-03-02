@@ -51,6 +51,7 @@ def main():
     address = (localip,  0) # Let the OS choose a port
     dataserver = DataServer(address, DataReceiver)
     ip, port = dataserver.server_address
+    # Got some duplication - localip vs ip
 
 
     # Step X - annouce yourself on the network:
