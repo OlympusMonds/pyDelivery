@@ -1,19 +1,17 @@
-# pyDelivery
-Apple AirDrop, reimagined in Python.
-
-This is what AirDrop is: http://support.apple.com/en-au/HT203106
-
-It is very useful, except it is limited to OSX and other Apple stuff. My goal is to implement a similar system in Python, so we can all use it!
+# PyDelivery
+A program to share files easily over a local network. May have some similarities to Apple AirDrop.
 
 
 Dependencies:
  - zeroconf  : pip install zeroconf
  - six       : pip install six
  - pysendfile: pip install pysendfile
+ - cython    : pip install cython
+ - kivy      : pip install kivy
+   - Kivy seems to have a bug with particular versions of libc, which is pretty major. I've had issues with Linux Mint 16 and Debian 6 in regard to this issue. Upgrading to Debian 7 fixed it for me :s
 
 To Do:
- - Move from TKinter to Kivy (if it's OK). This may open the door to deploying on Android/iOS/Windows more easily.
- - Figure out how the SockerServer handle function can either pass its data out, or some other function pass something in, so it can save the right filename, etc.
-   - Need to subclass the server, to make a constructer with (perhaps) a pointer to the Peer in question. Then the handle function can access it OK. See here: http://stackoverflow.com/questions/15889241/send-a-variable-to-a-tcphandler-in-python
+  - Figure out how the SockerServer handle function can either pass its data out, or some other function pass something in, so it can save the right filename, etc.
  - Get some safties in there. If a transfer fails, catch the exception, delete the file, etc.
-   - Actually, look into Twisted. 
+   - Actually, look into Twisted
+     - Twisted looks painful...
