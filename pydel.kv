@@ -1,29 +1,26 @@
 #:kivy 1.0.9
 
 <Peer>:
-    source: None
+    on_press: root.clicked()
+
+    canvas.before:
+        Color:
+            rgba: 1, 0, 1, 1
+        Rectangle:
+            size: self.size
 
     canvas:
         Color:
-        
-
+            rgba: 1, 0, 0, 1
         Ellipse:
-            source: root.source
-            pos: root.pos
+            source: root.image_path
             size: root.image_radius * 2, root.image_radius * 2
 
     Label:
         text: root.name
         font_size: 20
         color: 0, 0, 0, 1
-        pos: root.x, root.y - (root.image_radius * 1.2) 
-
-    Button:
-        pos: root.pos
-        size: root.image_radius * 2, root.image_radius * 2
-        background_color: 0, 0, 0, 0
-        on_press: root.on_press()
-            
+        pos: 0, -root.image_radius - 10
 
 <PyDelMainScreen>:
     fl: floatLay
@@ -58,6 +55,8 @@
         pos: root.pos
 
         on_size: root.peer_layout()
+
+        #on_press: root.on_press()
 
         canvas:
             Color:

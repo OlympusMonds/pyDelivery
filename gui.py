@@ -6,6 +6,7 @@ from kivy.app import App
 from kivy.uix.widget import Widget
 from kivy.uix.behaviors import ButtonBehavior
 from kivy.uix.floatlayout import FloatLayout
+from kivy.uix.relativelayout import RelativeLayout
 from kivy.properties import ObjectProperty, NumericProperty, StringProperty
 from kivy.graphics import Line, Ellipse, Color
 from kivy.clock import Clock
@@ -13,25 +14,24 @@ from kivy.animation import Animation
 from kivy.factory import Factory
 
 
-class Peer(Widget, ButtonBehavior):
+
+class Peer(ButtonBehavior, RelativeLayout):
     animation = None
     name = StringProperty("Peer")
     image_radius = NumericProperty(50)
-
-    pressed = NumericProperty(1)
+    image_path = StringProperty("images/peer.png")
 
     def __init__(self, image_radius, **kwargs):
         super(Peer, self).__init__(**kwargs)
         self.image_radius = image_radius
+        self.size = [100, 100]
+        self.pos = [400, 400]
+        print(self.size)
+        print(self.pos)
 
-        #self.elip.bind(pressed = self.ellipse_pressed)
-
-        print(self.size, self.pos)
-
-
-    def on_press(self, touch):
-        print(touch)
-        print("TOUCHED")
+    def clicked(self):
+        print("Hello", self.size)
+        print(self.pos)
 
 
 class PyDelMainScreen(Widget):
@@ -84,13 +84,13 @@ class PyDelMainScreen(Widget):
         for delta_peer in diff_peers:
             need_position_update = True
             if delta_peer in self.outside_peers.keys():
-                with self.fl.canvas:
-                    newpeer = Peer(image_radius=self.image_radius)
-                    newpeer.name = delta_peer
-                    self.peers[delta_peer] = newpeer  # Add a new peer
+                newpeer = Peer(image_radius=self.image_radius)
+                newpeer.name = delta_peer
+                self.fl.add_widget(newpeer)
+                self.peers[delta_peer] = newpeer  # Add a new peer
 
             elif delta_peer in self.peers.keys():
-                self.fl.canvas.clear()
+                self.fl.remove_widget(self.peers[delta_peer])
                 del self.peers[delta_peer]  # Peer no longer exists
 
         if need_position_update:
@@ -135,9 +135,6 @@ class PyDelMainScreen(Widget):
                 pos = (int(self.center_x + xpos - self.image_radius), 
                        int((self.height / 10.0) + ypos))
 
-                peer.source = "images/peer.png"
-                peer.size = (self.image_radius * 2, self.image_radius * 2)
-                
                 need_animation = False
                 if not close_enough(pos, peer.pos):
                     if peer.animation:
