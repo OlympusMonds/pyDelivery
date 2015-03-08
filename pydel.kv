@@ -18,7 +18,11 @@
         color: 0, 0, 0, 1
         pos: root.x, root.y - (root.image_radius * 1.2) 
 
-
+    Button:
+        pos: root.pos
+        size: root.image_radius * 2, root.image_radius * 2
+        background_color: 0, 0, 0, 0
+            
 
 <PyDelMainScreen>:
     fl: floatLay
@@ -51,6 +55,8 @@
         id: floatLay
         size: root.size
         pos: root.pos
+
+        on_size: root.peer_layout()
 
         canvas:
             Color:

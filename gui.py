@@ -13,17 +13,26 @@ from kivy.animation import Animation
 from kivy.factory import Factory
 
 
-class Peer(FloatLayout):
+class Peer(Widget, ButtonBehavior):
     animation = None
     name = StringProperty("Peer")
     image_radius = NumericProperty(50)
+
+    pressed = NumericProperty(1)
 
     def __init__(self, image_radius, **kwargs):
         super(Peer, self).__init__(**kwargs)
         self.image_radius = image_radius
 
-    def on_touch_down(self, touch):
+        #self.elip.bind(pressed = self.ellipse_pressed)
+
+        print(self.size, self.pos)
+
+
+    def on_press(self, touch):
         print(touch)
+        print("TOUCHED")
+
 
 class PyDelMainScreen(Widget):
     
@@ -70,8 +79,10 @@ class PyDelMainScreen(Widget):
             d = set(list1).intersection(set(list2))
             return list(c - d)
 
+        need_position_update = False
         diff_peers = diff(self.peers.keys(), self.outside_peers.keys())
         for delta_peer in diff_peers:
+            need_position_update = True
             if delta_peer in self.outside_peers.keys():
                 with self.fl.canvas:
                     newpeer = Peer(image_radius=self.image_radius)
@@ -82,7 +93,8 @@ class PyDelMainScreen(Widget):
                 self.fl.canvas.clear()
                 del self.peers[delta_peer]  # Peer no longer exists
 
-        self.peer_layout()  # Set peer locations
+        if need_position_update:
+            self.peer_layout()  # Set peer locations
                 
 
     def peer_layout(self):
@@ -142,6 +154,8 @@ class PyDelMainScreen(Widget):
 
     def set_peers(self, peers):
         self.outside_peers = peers
+
+
 
 class PyDelApp(App):
     
